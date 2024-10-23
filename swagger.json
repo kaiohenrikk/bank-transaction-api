@@ -1,0 +1,30 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/bank-transaction-api/health": {
+      "get": {
+        "operationId": "HealthController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Bank Transaction API",
+    "description": "API documentation for the Bank Transaction service",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {}
+  }
+}
