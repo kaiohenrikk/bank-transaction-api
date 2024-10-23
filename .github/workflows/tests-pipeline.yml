@@ -24,10 +24,7 @@ jobs:
         docker build -t my-app . | tee build.log
         cat build.log  # Print the build log to help identify issues
 
-    - name: List files in the project
-      run: ls -la  
-
     - name: Run tests
       run: |
-        docker run my-app npm test | tee test.log  # Capture test logs
-        cat test.log  # Print test log to help identify issues
+        docker run my-app npm test | tee test.log  
+        cat test.log 
