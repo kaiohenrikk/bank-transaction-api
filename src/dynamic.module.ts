@@ -2,13 +2,19 @@ import { Module, DynamicModule, Provider } from '@nestjs/common';
 import { Type } from '@nestjs/common/interfaces';
 import { promises as fs } from 'fs';
 import { join, resolve } from 'path';
+import { LoggerService } from './common/logger.service'; // Adjust the path accordingly
 
 @Module({})
 export class DynamicModuleLoader {
   static async register(): Promise<DynamicModule> {
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     const controllers: Type<any>[] = [];
-    const providers: Provider[] = [];
+    const providers: Provider[] = [
+      {
+        provide: LoggerService,
+        useClass: LoggerService, 
+      },
+    ];
 
     // eslint-disable-next-line no-undef
     const modulesDir = resolve(__dirname, './modules');
@@ -37,7 +43,7 @@ export class DynamicModuleLoader {
       module: DynamicModuleLoader,
       controllers,
       providers,
-      exports: providers,
+      exports: [...providers], 
     };
   }
 
