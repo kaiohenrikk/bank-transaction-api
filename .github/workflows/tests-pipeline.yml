@@ -19,12 +19,12 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
-    - name: Build Docker image
+    - name: Build Docker image for testing
       run: |
-        docker build -t my-app . | tee build.log
+        docker build -f Dockerfile.test -t my-app-test . | tee build.log
         cat build.log  # Print the build log to help identify issues
 
     - name: Run tests
       run: |
-        docker run my-app npm test | tee test.log  
-        cat test.log 
+        docker run my-app-test | tee test.log  
+        cat test.log

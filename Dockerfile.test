@@ -13,11 +13,5 @@ RUN npm install
 # Copy the rest of your application code.
 COPY . .
 
-# Build the TypeScript code.
-RUN npm run build
-
-# Expose the application port
-EXPOSE 3000 
-
-# Run the application (change from npm test to npm start to run the app)
-CMD ["npm", "start"]
+# Run tests by default in this stage
+CMD ["npm", "test"]

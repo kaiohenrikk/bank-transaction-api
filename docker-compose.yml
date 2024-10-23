@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki-config.yaml
+      - loki-data:/loki/data
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000" 
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  
+    depends_on:
+      - loki  
+
+  app:
+    build: .
+    ports:
+      - "3000:3000" 
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - loki  
+    volumes:
+      - ./swagger.json:/usr/src/app/swagger.json  # Map the Swagger JSON file to the app container
+
+  swagger:
+    image: swaggerapi/swagger-ui
+    ports:
+      - "8080:8080"  # Expose Swagger UI on port 8080
+    environment:
+      - SWAGGER_JSON=/usr/share/swagger-ui/swagger.json
+    volumes:
+      - ./swagger.json:/usr/share/swagger-ui/swagger.json  # Map the same Swagger JSON file
+
+volumes:
+  loki-data:
