@@ -12,14 +12,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      docker:
-        image: docker:latest
-        options: >-
-          --privileged
-        ports:
-          - 80:80
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -31,4 +23,4 @@ jobs:
       run: docker build -t my-app .
 
     - name: Run tests
-      run: docker run my-app
+      run: docker run my-app npm test
