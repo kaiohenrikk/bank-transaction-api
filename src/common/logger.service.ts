@@ -7,6 +7,8 @@ export class LoggerService {
   private logger: Logger;
 
   constructor() {
+    const isTestEnv: boolean = process.env.NODE_ENV === 'test';
+
     this.logger = createLogger({
       level: 'info',
       format: format.combine(
@@ -14,12 +16,13 @@ export class LoggerService {
         format.json(),
       ),
       transports: [
-        new LokiTransport({
-          host: 'http://loki:3100',
-          json: true,
-          labels: { app: 'bank_transaction_api' }, 
-        }),
-        new transports.Console(),
+        new transports.Console(), 
+        ...(isTestEnv ? [] : [
+          new LokiTransport({
+            host: 'http://loki:3100',
+            json: true,
+          }),
+        ]),
       ],
     });
   }
