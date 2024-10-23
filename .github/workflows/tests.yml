@@ -20,7 +20,14 @@ jobs:
       uses: docker/setup-buildx-action@v1
 
     - name: Build Docker image
-      run: docker build -t my-app .
+      run: |
+        docker build -t my-app . | tee build.log
+        cat build.log  # Print the build log to help identify issues
+
+    - name: List files in the project
+      run: ls -la  
 
     - name: Run tests
-      run: docker run my-app npm test
+      run: |
+        docker run my-app npm test | tee test.log  # Capture test logs
+        cat test.log  # Print test log to help identify issues
