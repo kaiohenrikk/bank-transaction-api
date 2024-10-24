@@ -2,7 +2,7 @@ import { Controller, Post, Get, Delete, Param, Body, HttpCode, HttpStatus } from
 import { Account } from '../entities/accounts.entity';
 import { AccountsService } from '../service/accounts.service';
 import { LoggerService } from '../../../common/logger/service/logger.service';
-import { CreateAccountDto } from '../dto/create-account.dto';
+import { AccountDto } from '../dto/account.dto';
 
 @Controller('accounts')
 export class AccountsController {
@@ -12,12 +12,12 @@ export class AccountsController {
     ) { }
 
     @Post()
-    async create(@Body() accountData: CreateAccountDto): Promise<CreateAccountDto> {
+    async create(@Body() accountData: AccountDto): Promise<AccountDto> {
         this.loggerService.info(`Iniciando processo de criação de conta... ${accountData}`);
 
         return this.accountsService.createAccount(accountData)
             .then((account) => {
-                this.loggerService.info(`Conta criada com sucesso: ${account.accountNumber}`);
+                this.loggerService.info(`Conta criada com sucesso: ${account.numero}`);
                 return account;
             })
             .catch((error) => {
@@ -30,7 +30,7 @@ export class AccountsController {
     async get(@Param('accountNumber') accountNumber: string): Promise<Account> {
         this.loggerService.info(`Iniciando busca da conta... ${accountNumber}`);
 
-        return this.accountsService.getAccount(accountNumber)
+        return this.accountsService.getAccount(+accountNumber)
             .then((account) => {
                 this.loggerService.info(`Conta encontrada: ${accountNumber}`);
                 return account;
@@ -46,7 +46,7 @@ export class AccountsController {
     async delete(@Param('accountNumber') accountNumber: string): Promise<void> {
         this.loggerService.info(`Iniciando processo para deletar a conta... ${accountNumber}`);
 
-        await this.accountsService.deleteAccount(accountNumber)
+        await this.accountsService.deleteAccount(+accountNumber)
             .then(() => {
                 this.loggerService.info(`A conta ${accountNumber} foi excluída com sucesso`);
             })
