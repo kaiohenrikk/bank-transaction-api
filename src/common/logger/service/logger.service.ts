@@ -13,7 +13,7 @@ export class LoggerService {
       level: 'info',
       format: format.combine(
         format.timestamp(),
-        format.json(),
+        format.json()
       ),
       transports: [
         new transports.Console(), 
@@ -21,6 +21,9 @@ export class LoggerService {
           new LokiTransport({
             host: 'http://loki:3100',
             json: true,
+            labels: {
+              app_name: "bank-transaction-api",
+            }
           }),
         ]),
       ],
