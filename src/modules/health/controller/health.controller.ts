@@ -11,7 +11,6 @@ export default class HealthController {
   @Get()
   getHealth(): string {
     this.logger.info('Service is running');
-    console.log('Service is running');
 
     return 'Service is running';
   }

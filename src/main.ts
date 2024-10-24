@@ -2,10 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
+import { ValidationPipe } from '@nestjs/common';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
-
+  
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
   app.setGlobalPrefix('bank-transaction-api');
 
   const config = new DocumentBuilder()

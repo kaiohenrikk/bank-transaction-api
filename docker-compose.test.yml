@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: banktransactionuser
+      POSTGRES_PASSWORD: banktransactionpassword
+      POSTGRES_DB: prod_banking_system
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U banktransactionuser -d prod_banking_system"]
+      interval: 10s 
+      timeout: 5s
+      retries: 5
+    networks:
+      - my-network
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=test
+      - POSTGRES_USER=banktransactionuser
+      - POSTGRES_PASSWORD=banktransactionpassword
+      - POSTGRES_DB=prod_banking_system
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    depends_on:
+      - db
+    command: sh -c "npm start & until nc -z db 5432; do echo waiting for db; sleep 2; done; npm run test:integration"
+    networks:
+      - my-network
+
+volumes:
+  pg_data:
+
+networks:
+  my-network:
