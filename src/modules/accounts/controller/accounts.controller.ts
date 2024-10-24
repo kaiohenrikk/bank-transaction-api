@@ -1,8 +1,8 @@
-import { Controller, Post, Get, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Param, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { Account } from '../entities/accounts.entity';
 import { AccountsService } from '../service/accounts.service';
 import { LoggerService } from '../../../common/logger/service/logger.service';
-import { CreateAccount } from '../model/create-account.model';
+import { CreateAccountDto } from '../dto/create-account.dto';
 
 @Controller('accounts')
 export class AccountsController {
@@ -12,7 +12,7 @@ export class AccountsController {
     ) { }
 
     @Post()
-    async create(@Body() accountData: CreateAccount): Promise<Account> {
+    async create(@Body() accountData: CreateAccountDto): Promise<CreateAccountDto> {
         this.loggerService.info(`Iniciando processo de criação de conta... ${accountData}`);
 
         return this.accountsService.createAccount(accountData)
@@ -42,13 +42,13 @@ export class AccountsController {
     }
 
     @Delete(':accountNumber')
-    async delete(@Param('accountNumber') accountNumber: string): Promise<boolean> {
+    @HttpCode(HttpStatus.NO_CONTENT) 
+    async delete(@Param('accountNumber') accountNumber: string): Promise<void> {
         this.loggerService.info(`Iniciando processo para deletar a conta... ${accountNumber}`);
 
-        return this.accountsService.deleteAccount(accountNumber)
-            .then((isDeleted) => {
-                this.loggerService.info(`${isDeleted ? `Conta ${accountNumber} deletada` : `Conta ${accountNumber} não encontrada`}`);
-                return isDeleted;
+        await this.accountsService.deleteAccount(accountNumber)
+            .then(() => {
+                this.loggerService.info(`A conta ${accountNumber} foi excluída com sucesso`);
             })
             .catch((error) => {
                 this.loggerService.error(`Erro ao deletar conta ${accountNumber}: ${error.message}`);

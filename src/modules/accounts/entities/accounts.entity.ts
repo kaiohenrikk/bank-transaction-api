@@ -6,7 +6,7 @@ export class Account {
   accountNumber: string;
 
   @Column({ type: 'decimal', default: 0 })
-  balance: number;
+  balance: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

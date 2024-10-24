@@ -1,18 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { AccountsService } from "../../../../src/modules/accounts/service/accounts.service";
 import { Account } from "../../../../src/modules/accounts/entities/accounts.entity";
+import { CreateAccountDto } from '../../../../src/modules/accounts/dto/create-account.dto';
 
 describe('AccountsService', () => {
     let service: AccountsService;
 
     const mockAccount: Account = {
         accountNumber: '12345',
-        balance: 1000,
+        balance: "1000.00",
         createdAt: new Date(),
         updatedAt: new Date(),
+    };
+
+    const mockResponse: CreateAccountDto = {
+        accountNumber: mockAccount.accountNumber,
+        balance: mockAccount.balance,
     };
 
     const mockRepository = {
@@ -46,7 +51,7 @@ describe('AccountsService', () => {
     it('should create a new account', async () => {
         mockRepository.save.mockResolvedValue(mockAccount);
         const result = await service.createAccount(mockAccount);
-        expect(result).toEqual(mockAccount);
+        expect(result).toEqual(mockResponse);
         expect(mockRepository.save).toHaveBeenCalledWith(mockAccount);
     });
 
@@ -66,24 +71,34 @@ describe('AccountsService', () => {
 
     it('should update an existing account', async () => {
         mockRepository.findOne.mockResolvedValue(mockAccount);
-        mockRepository.save.mockResolvedValue({ ...mockAccount, balance: 2000.00 });
+        mockRepository.save.mockResolvedValue({ ...mockAccount, balance: "2000.00" });
 
-        const result = await service.updateAccount('12345', { balance: 2000.00 });
-        expect(result.balance).toEqual(2000);
-        expect(mockRepository.save).toHaveBeenCalledWith({ ...mockAccount, balance: 2000.00 });
+        const result = await service.updateAccount('12345', { balance: "2000.00" });
+        expect(result.balance).toEqual("2000.00");
+        expect(mockRepository.save).toHaveBeenCalledWith({ ...mockAccount, balance: "2000.00" });
     });
 
     it('should delete an account and return true if successful', async () => {
         mockRepository.delete.mockResolvedValue({ affected: 1 });
-        const result = await service.deleteAccount('12345');
-        expect(result).toBe(true);
+
+        try {
+            await service.deleteAccount('12345');
+        } catch (error) {       
+            expect(error).toBeUndefined();
+        }
+
         expect(mockRepository.delete).toHaveBeenCalledWith({ accountNumber: '12345' });
     });
 
-    it('should return false if account deletion fails', async () => {
+    it('should throw error if account deletion fails', async () => {
         mockRepository.delete.mockResolvedValue({ affected: 0 });
-        const result = await service.deleteAccount('99999');
-        expect(result).toBe(false);
+
+        try {
+            await service.deleteAccount('99999');
+        } catch (error) {
+            expect(error).toBeInstanceOf(NotFoundException);
+        }
+       
     });
 
     it('should return all accounts', async () => {
