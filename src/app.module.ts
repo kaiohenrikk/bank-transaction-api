@@ -4,6 +4,7 @@ import { typeOrmDataSourceOptions } from './config/database.config';
 import { LoggerModule } from './common/logger/logger.module';
 import { HealthModule } from './modules/health/health.module';
 import { AccountsModule } from './modules/accounts/accounts.module';
+import { TransactionsModule } from './modules/transactions/transactions.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { AccountsModule } from './modules/accounts/accounts.module';
     LoggerModule,
     HealthModule,
     AccountsModule,
+    TransactionsModule,
   ],
 })
 export class AppModule {}

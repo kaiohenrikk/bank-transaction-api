@@ -3,8 +3,9 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Account } from "../../../../src/modules/accounts/entities/accounts.entity";
+import { Account } from '../../../../src/modules/accounts/entities/accounts.entity';
 import { AppModule } from '../../../../src/app.module';
+import { AccountDto } from '../../../../src/modules/accounts/dto/account.dto';
 
 describe('AccountsController', () => {
   let app: INestApplication;
@@ -26,23 +27,23 @@ describe('AccountsController', () => {
   });
 
   beforeEach(async () => {
-    await accountRepository.clear();
+    await accountRepository.delete({});
   });
 
   it('POST /accounts - should create a new account', async () => {
-    const createAccountDto = { accountNumber: '123456', balance: "100.00" };
+    const createAccountDto: AccountDto = { numero: 123456, saldo: 100 };
     
     const response = await request(app.getHttpServer())
       .post('/accounts')
       .send(createAccountDto)
       .expect(201);
 
-    expect(response.body).toHaveProperty('accountNumber', createAccountDto.accountNumber);
-    expect(response.body).toHaveProperty('balance', createAccountDto.balance);
+    expect(response.body).toHaveProperty('numero', createAccountDto.numero);
+    expect(response.body).toHaveProperty('saldo', createAccountDto.saldo);
   });
 
   it('GET /accounts/:accountNumber - should return an account', async () => {
-    const account = await accountRepository.save({ accountNumber: '123456', balance: "100.00" });
+    const account = await accountRepository.save({ accountNumber: 123456, balance: 100 });
 
     const response = await request(app.getHttpServer())
       .get(`/accounts/${account.accountNumber}`)
@@ -55,7 +56,7 @@ describe('AccountsController', () => {
   });
 
   it('DELETE /accounts/:accountNumber - should delete an account', async () => {
-    const account = await accountRepository.save({ accountNumber: '123456', balance: "100.00" });
+    const account = await accountRepository.save({ accountNumber: 123456, balance: 100 });
 
     await request(app.getHttpServer())
       .delete(`/accounts/${account.accountNumber}`)
@@ -63,14 +64,14 @@ describe('AccountsController', () => {
 
     const deletedAccount = await accountRepository.findOne({ where: { accountNumber: account.accountNumber } });
     expect(deletedAccount).toBeNull(); 
-});
+  });
 
   it('GET /accounts/:accountNumber - should return 404 for non-existing account', async () => {
     const response = await request(app.getHttpServer())
-      .get('/accounts/non-existing-account')
+      .get('/accounts/12')
       .expect(404);
 
     expect(response.body).toHaveProperty('statusCode', 404);
-    expect(response.body).toHaveProperty('message', 'Conta de número non-existing-account não encontrada');
+    expect(response.body).toHaveProperty('message', 'Conta de número 12 não encontrada');
   });
 });

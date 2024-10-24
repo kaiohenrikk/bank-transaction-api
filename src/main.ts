@@ -2,12 +2,17 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
+import { join } from 'path'; 
 import { ValidationPipe } from '@nestjs/common';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
-  
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
+
+  app.useGlobalPipes(new ValidationPipe({ 
+    whitelist: true, 
+    forbidNonWhitelisted: true 
+  }));
+
   app.setGlobalPrefix('bank-transaction-api');
 
   const config = new DocumentBuilder()
@@ -18,7 +23,8 @@ const bootstrap = async () => {
 
   const document = SwaggerModule.createDocument(app, config);
 
-  writeFileSync('./swagger.json', JSON.stringify(document, null, 2));
+  const swaggerPath = join(process.cwd(), 'swagger.json');
+  writeFileSync(swaggerPath, JSON.stringify(document, null, 2), 'utf-8');
 
   SwaggerModule.setup('api-docs', app, document);
 
@@ -26,4 +32,5 @@ const bootstrap = async () => {
 
   await app.listen(3000);
 };
+
 bootstrap();
