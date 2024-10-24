@@ -15,14 +15,14 @@ describe('HealthController', () => {
     await app.init();
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('/health (GET)', () => {
     return request(app.getHttpServer())
       .get('/health')
       .expect(200)
       .expect('Service is running');
-  });
-
-  afterAll(async () => {
-    await app.close();
   });
 });
