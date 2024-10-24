@@ -51,7 +51,7 @@ services:
     volumes:
       - ./swagger.json:/usr/share/swagger-ui/swagger.json 
     networks:
-      - my-network  # Added to the network
+      - my-network  
 
   db: 
     image: postgres:latest
