@@ -27,9 +27,9 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: test_db
+          POSTGRES_USER: banktransactionuser  
+          POSTGRES_PASSWORD: banktransactionpassword  
+          POSTGRES_DB: prod_banking_system 
         ports:
           - 5432:5432
         options: >-
