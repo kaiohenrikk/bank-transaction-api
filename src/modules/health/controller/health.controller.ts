@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { LoggerService } from '../../../common/logger.service';
+import { LoggerService } from '../../../common/logger/service/logger.service';
 
 @ApiTags('Health')
 @Controller('health')
@@ -11,6 +11,8 @@ export default class HealthController {
   @Get()
   getHealth(): string {
     this.logger.info('Service is running');
+    console.log('Service is running');
+
     return 'Service is running';
   }
 }

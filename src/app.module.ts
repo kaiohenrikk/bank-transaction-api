@@ -1,7 +1,14 @@
 import { Module } from '@nestjs/common';
-import { DynamicModuleLoader } from './dynamic.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { typeOrmDataSourceOptions } from './config/database.config';
+import { LoggerModule } from './common/logger/logger.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
-  imports: [DynamicModuleLoader.register()]
+  imports: [
+    TypeOrmModule.forRoot(typeOrmDataSourceOptions),
+    LoggerModule,
+    HealthModule,
+  ],
 })
 export class AppModule {}
