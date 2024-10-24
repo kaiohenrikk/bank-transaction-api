@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: banktransactionpassword  
       POSTGRES_DB: prod_banking_system  
     ports:
-      - "5433:5432"
+      - "5433:5432"  
     volumes:
       - pg_data:/var/lib/postgresql/data 
     healthcheck:
@@ -28,8 +28,10 @@ services:
       - POSTGRES_PASSWORD=banktransactionpassword
       - POSTGRES_DB=prod_banking_system
       - POSTGRES_HOST=db 
+      - POSTGRES_PORT=5433 
     depends_on:
       - db  
+    command: sh -c "until nc -z db 5432; do echo waiting for db; sleep 2; done; npm test"
     networks:
       - my-network 
 
