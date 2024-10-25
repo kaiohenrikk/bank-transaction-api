@@ -28,7 +28,7 @@ export class TransactionsService {
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new UnprocessableEntityException(
-          `Conta de número ${accountNumber} não encontrada. Necessário criar uma conta.`,
+          `Conta de número ${accountNumber} não encontrada. Necessário criar uma conta.`
         );
       }
       throw error;
@@ -36,26 +36,36 @@ export class TransactionsService {
   }
 
   @Retry()
-  private async transfer(transactionData: TransactionDto): Promise<TransactionDto> {
+  private async transfer(
+    transactionData: TransactionDto
+  ): Promise<TransactionDto> {
     return this.dataSource.transaction('SERIALIZABLE', async (manager) => {
       if (!transactionData.destino || !transactionData.origem) {
         throw new BadRequestException(
-          `Para transferência, o campo 'destino' e 'origem' devem ser preenchidos.`,
+          `Para transferência, o campo 'destino' e 'origem' devem ser preenchidos.`
         );
       }
 
       const [getAccountFrom, getAccountTo] = await Promise.all([
-        manager.findOne(Account, { where: { accountNumber: transactionData.origem } }),
-        manager.findOne(Account, { where: { accountNumber: transactionData.destino } }),
+        manager.findOne(Account, {
+          where: { accountNumber: transactionData.origem },
+        }),
+        manager.findOne(Account, {
+          where: { accountNumber: transactionData.destino },
+        }),
       ]);
 
       if (!getAccountFrom || !getAccountTo) {
         throw new UnprocessableEntityException(
-          `Conta de origem ou de destino não encontrada. Origem: ${transactionData.origem}. Destino: ${transactionData.destino}.`,
+          `Conta de origem ou de destino não encontrada. Origem: ${transactionData.origem}. Destino: ${transactionData.destino}.`
         );
       }
 
-      this.validateAccountBalance(getAccountFrom!.balance, transactionData.valor, getAccountFrom!.accountNumber);
+      this.validateAccountBalance(
+        getAccountFrom!.balance,
+        transactionData.valor,
+        getAccountFrom!.accountNumber
+      );
 
       getAccountFrom!.balance -= transactionData.valor;
       getAccountTo!.balance += transactionData.valor;
@@ -65,19 +75,26 @@ export class TransactionsService {
         manager.save(getAccountTo),
       ]);
 
+      await manager.save(TransactionsService.buildTransaction(getAccountFrom, transactionData.valor, transactionData.tipo));
+      await manager.save(TransactionsService.buildTransaction(getAccountTo, transactionData.valor, transactionData.tipo));
+
       return this.createTransactionResponse(
         getAccountFrom!.accountNumber,
         transactionData.valor,
         transactionData.tipo,
-        getAccountTo!.accountNumber,
+        getAccountTo!.accountNumber
       );
     });
   }
 
-  private validateAccountBalance(accountBalance: number, transactionValue: number, accountNumber: number): void {
+  private validateAccountBalance(
+    accountBalance: number,
+    transactionValue: number,
+    accountNumber: number
+  ): void {
     if (accountBalance < transactionValue) {
       throw new UnprocessableEntityException(
-        `Saldo insuficiente para realizar a transação. Conta: ${accountNumber}. Saldo: ${accountBalance}. Transação: ${transactionValue}.`,
+        `Saldo insuficiente para realizar a transação. Conta: ${accountNumber}. Saldo: ${accountBalance}. Transação: ${transactionValue}.`
       );
     }
   }
@@ -86,27 +103,37 @@ export class TransactionsService {
     origem: number,
     valor: number,
     tipo: TransactionType,
-    destino?: number,
+    destino?: number
   ): TransactionDto {
     return {
       tipo,
       origem,
       destino,
-      valor
+      valor,
     } as TransactionDto;
   }
 
   private static handleBalanceOperation(
     transactionType: TransactionType,
     balance: number,
-    transactionAmount: number,
+    transactionAmount: number
   ): number {
     return transactionType === TransactionType.DEPOSIT
       ? balance + transactionAmount
       : balance - transactionAmount;
   }
 
-  async createTransaction(transactionData: TransactionDto): Promise<TransactionDto> {
+  private static buildTransaction(account: Account, amount: number, type: TransactionType): Transaction {
+    const transaction = new Transaction();
+    transaction.account = account;
+    transaction.amount = amount;
+    transaction.type = type;
+    return transaction
+  }
+
+  async createTransaction(
+    transactionData: TransactionDto
+  ): Promise<TransactionDto> {
     if (transactionData.tipo === TransactionType.TRANSFER) {
       return this.transfer(transactionData);
     }
@@ -114,21 +141,33 @@ export class TransactionsService {
     const getAccount = await this.getAccount(transactionData.origem);
 
     if (transactionData.tipo === TransactionType.WITHDRAWAL) {
-      this.validateAccountBalance(getAccount.balance, transactionData.valor, getAccount.accountNumber);
+      this.validateAccountBalance(
+        getAccount.balance,
+        transactionData.valor,
+        getAccount.accountNumber
+      );
     }
 
     getAccount.balance = TransactionsService.handleBalanceOperation(
       transactionData.tipo,
       getAccount.balance,
-      transactionData.valor,
+      transactionData.valor
     );
 
     await this.accountsService.updateAccount(getAccount);
 
-    return this.createTransactionResponse(getAccount.accountNumber, transactionData.valor, transactionData.tipo);
+    await this.transactionsRepository.save(TransactionsService.buildTransaction(getAccount, transactionData.valor, transactionData.tipo));
+
+    return this.createTransactionResponse(
+      getAccount.accountNumber,
+      transactionData.valor,
+      transactionData.tipo
+    );
   }
 
-  async getAllTransactionsByAccountNumber(accountNumber: number): Promise<Transaction[]> {
+  async getAllTransactionsByAccountNumber(
+    accountNumber: number
+  ): Promise<Transaction[]> {
     const getAccount = await this.getAccount(accountNumber);
     const transactions = await this.transactionsRepository.find({
       relations: ['account'],
@@ -136,13 +175,18 @@ export class TransactionsService {
     });
 
     if (!transactions.length) {
-      throw new NotFoundException(`Não existem transações para a conta ${accountNumber}`);
+      throw new NotFoundException(
+        `Não existem transações para a conta ${accountNumber}`
+      );
     }
 
     return transactions;
   }
 
-  async getTransactionsByAccountNumberAndTransactionType(accountNumber: number, type: TransactionType): Promise<Transaction[]> {
+  async getTransactionsByAccountNumberAndTransactionType(
+    accountNumber: number,
+    type: TransactionType
+  ): Promise<Transaction[]> {
     const getAccount = await this.getAccount(accountNumber);
     const transactions = await this.transactionsRepository.find({
       relations: ['account'],
@@ -150,7 +194,9 @@ export class TransactionsService {
     });
 
     if (!transactions.length) {
-      throw new NotFoundException(`Não existem transações do tipo ${type} para a conta ${accountNumber}`);
+      throw new NotFoundException(
+        `Não existem transações do tipo ${type} para a conta ${accountNumber}`
+      );
     }
 
     return transactions;
