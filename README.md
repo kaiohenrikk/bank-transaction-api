@@ -7,9 +7,10 @@
 - Typescript
 - Docker
 - Jest
-- Github Actions (pipeline de testes)
+- Github Actions ([Histórico de actions](https://github.com/kaiohenrikk/bank-transaction-api/actions))
 - Swagger
 - Grafana + Loki
+- PostgreSQL
 
 ## Exemplos de concorrência
 Os exemplos de concorrência utilizados para teste foram os disponíveis na tabela verdade em: [https://gist.github.com/gp-breno/71e3f5e0b85b97c79911037d8643e81e](https://gist.github.com/gp-breno/71e3f5e0b85b97c79911037d8643e81e)
