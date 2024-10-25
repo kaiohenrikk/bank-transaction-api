@@ -6,11 +6,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from '../entities/transaction.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { AccountsService } from '../../accounts/service/accounts.service';
 import { Account } from '../../accounts/entities/accounts.entity';
 import { TransactionType } from '../enums/transaction-type.enum';
 import { TransactionDto } from '../dto/transaction.dto';
+import { Retry } from '../../../decorators/retry.decorator';
 
 @Injectable()
 export class TransactionsService {
@@ -18,6 +19,7 @@ export class TransactionsService {
     @InjectRepository(Transaction)
     private readonly transactionsRepository: Repository<Transaction>,
     private readonly accountsService: AccountsService,
+    private readonly dataSource: DataSource
   ) { }
 
   private async getAccount(accountNumber: number): Promise<Account> {
@@ -33,34 +35,43 @@ export class TransactionsService {
     }
   }
 
+  @Retry()
   private async transfer(transactionData: TransactionDto): Promise<TransactionDto> {
-    if (!transactionData.destino || !transactionData.origem) {
-      throw new BadRequestException(
-        `Para transferência, o campo 'destino' e 'origem' devem ser preenchidos.`,
+    return this.dataSource.transaction('SERIALIZABLE', async (manager) => {
+      if (!transactionData.destino || !transactionData.origem) {
+        throw new BadRequestException(
+          `Para transferência, o campo 'destino' e 'origem' devem ser preenchidos.`,
+        );
+      }
+
+      const [getAccountFrom, getAccountTo] = await Promise.all([
+        manager.findOne(Account, { where: { accountNumber: transactionData.origem } }),
+        manager.findOne(Account, { where: { accountNumber: transactionData.destino } }),
+      ]);
+
+      if (!getAccountFrom || !getAccountTo) {
+        throw new UnprocessableEntityException(
+          `Conta de origem ou de destino não encontrada. Origem: ${transactionData.origem}. Destino: ${transactionData.destino}.`,
+        );
+      }
+
+      this.validateAccountBalance(getAccountFrom!.balance, transactionData.valor, getAccountFrom!.accountNumber);
+
+      getAccountFrom!.balance -= transactionData.valor;
+      getAccountTo!.balance += transactionData.valor;
+
+      await Promise.all([
+        manager.save(getAccountFrom),
+        manager.save(getAccountTo),
+      ]);
+
+      return this.createTransactionResponse(
+        getAccountFrom!.accountNumber,
+        transactionData.valor,
+        transactionData.tipo,
+        getAccountTo!.accountNumber,
       );
-    }
-
-    const [getAccountFrom, getAccountTo] = await Promise.all([
-      this.getAccount(transactionData.origem!),
-      this.getAccount(transactionData.destino!),
-    ]);
-
-    this.validateAccountBalance(getAccountFrom.balance, transactionData.valor, getAccountFrom.accountNumber);
-
-    getAccountFrom.balance -= transactionData.valor
-    getAccountTo.balance += transactionData.valor
-
-    await Promise.all([
-      this.accountsService.updateAccount(getAccountFrom),
-      this.accountsService.updateAccount(getAccountTo),
-    ]);
-
-    return this.createTransactionResponse(
-      getAccountFrom.accountNumber,
-      transactionData.valor,
-      transactionData.tipo,
-      getAccountTo.accountNumber,
-    );
+    });
   }
 
   private validateAccountBalance(accountBalance: number, transactionValue: number, accountNumber: number): void {
@@ -91,7 +102,7 @@ export class TransactionsService {
     transactionAmount: number,
   ): number {
     return transactionType === TransactionType.DEPOSIT
-      ? balance + transactionAmount 
+      ? balance + transactionAmount
       : balance - transactionAmount;
   }
 

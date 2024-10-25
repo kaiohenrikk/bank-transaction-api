@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, VersionColumn } from 'typeorm';
 
 @Entity('accounts')
 export class Account {
@@ -13,4 +13,7 @@ export class Account {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+  @VersionColumn()
+  version: number; 
 }

@@ -3,12 +3,11 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TransactionsModule } from '../../../../src/modules/transactions/transactions.module';
 import { Transaction } from '../../../../src/modules/transactions/entities/transaction.entity';
 import { Account } from '../../../../src/modules/accounts/entities/accounts.entity';
 import { TransactionType } from '../../../../src/modules/transactions/enums/transaction-type.enum';
-import { AccountDto } from '../../../../src/modules/accounts/dto/account.dto';
 import { AppModule } from '../../../../src/app.module';
+import { TransactionDto } from '../../../../src/modules/transactions/dto/transaction.dto';
 
 describe('TransactionsController (e2e)', () => {
   let app: INestApplication;
@@ -101,7 +100,7 @@ describe('TransactionsController (e2e)', () => {
 
   describe('Error handling', () => {
     it('should return 422 for non-existing account during transfer', async () => {
-      const transactionDto = {
+      const transactionDto: TransactionDto = {
         origem: 99999, 
         destino: 54321,
         valor: 100,
@@ -114,7 +113,7 @@ describe('TransactionsController (e2e)', () => {
         .expect(422);
 
       expect(response.body).toHaveProperty('statusCode', 422);
-      expect(response.body).toHaveProperty('message', 'Conta de número 99999 não encontrada. Necessário criar uma conta.');
+      expect(response.body).toHaveProperty('message', 'Conta de origem ou de destino não encontrada. Origem: 99999. Destino: 54321.');
     });
   });
 });

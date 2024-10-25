@@ -16,7 +16,7 @@ export class TransactionsController {
   async createTransaction(@Body() transactionDto: TransactionDto) {
     return this.transactionsService.createTransaction(transactionDto)
       .then(transaction => {
-        this.loggerService.info(`Transação realizada com sucesso para a conta origem ${transaction.origem}: ${transaction}`);
+        this.loggerService.info(`Transação realizada com sucesso para a conta origem ${transaction.origem}`);
         return transaction;
       })
       .catch(error => {
