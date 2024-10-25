@@ -20,9 +20,13 @@ Os exemplos de concorrência utilizados para teste foram os disponíveis na tabe
    ```bash
    git clone git@github.com:kaiohenrikk/bank-transaction-api.git
 
-2. Instale o Docker. No site oficial tem explicando: https://docs.docker.com.
+2. Instale o Typescript com o comando: 
+   ```bash
+   npm install -g typescript
 
-3. Após isso, é só rodar o comando:
+3. Instale o Docker. No site oficial tem explicando: https://docs.docker.com.
+
+4. Após isso, é só rodar o comando:
    ```bash
    docker compose up -d
 
