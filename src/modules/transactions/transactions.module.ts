@@ -9,10 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountsModule } from '../accounts/accounts.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Transaction]),
-    AccountsModule
-  ],
+  imports: [TypeOrmModule.forFeature([Transaction]), AccountsModule],
   controllers: [TransactionsController],
   providers: [TransactionsService, LoggerService, AccountsService],
 })

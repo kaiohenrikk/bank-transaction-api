@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Account } from '../entities/accounts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,33 +14,42 @@ export class AccountsService {
   constructor(
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>
-  ) { }
+  ) {}
 
   async createAccount(createAccount: AccountDto): Promise<AccountDto> {
     const accountData: Partial<Account> = {
       accountNumber: createAccount.numero,
-      balance: createAccount.saldo
-    }
+      balance: createAccount.saldo,
+    };
 
-    const account = await this.getAccount(createAccount.numero)
-      .catch(() => null);
+    const account = await this.getAccount(createAccount.numero).catch(
+      () => null
+    );
 
     if (account) {
-      throw new ConflictException(`Conta com o número ${createAccount.numero} já existe. Crie uma nova.`);
+      throw new ConflictException(
+        `Conta com o número ${createAccount.numero} já existe. Crie uma nova.`
+      );
     }
 
-    return this.accountsRepository.save(accountData)
-      .then((account) => ({
-        numero: account.accountNumber,
-        saldo: account.balance
-      }) as AccountDto)
+    return this.accountsRepository.save(accountData).then(
+      (account) =>
+        ({
+          numero: account.accountNumber,
+          saldo: account.balance,
+        }) as AccountDto
+    );
   }
 
   async getAccount(accountNumber: number): Promise<Account> {
-    const account = await this.accountsRepository.findOne({ where: { accountNumber } });
+    const account = await this.accountsRepository.findOne({
+      where: { accountNumber },
+    });
 
     if (!account) {
-      throw new NotFoundException(`Conta de número ${accountNumber} não encontrada`);
+      throw new NotFoundException(
+        `Conta de número ${accountNumber} não encontrada`
+      );
     }
 
     return account;
@@ -52,7 +65,9 @@ export class AccountsService {
     const result = await this.accountsRepository.delete({ accountNumber });
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Account with number ${accountNumber} not found`);
+      throw new NotFoundException(
+        `Account with number ${accountNumber} not found`
+      );
     }
   }
 

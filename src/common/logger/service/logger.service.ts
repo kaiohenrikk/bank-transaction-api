@@ -11,21 +11,20 @@ export class LoggerService {
 
     this.logger = createLogger({
       level: 'info',
-      format: format.combine(
-        format.timestamp(),
-        format.json()
-      ),
+      format: format.combine(format.timestamp(), format.json()),
       transports: [
-        new transports.Console(), 
-        ...(isTestEnv ? [] : [
-          new LokiTransport({
-            host: 'http://loki:3100',
-            json: true,
-            labels: {
-              app_name: "bank-transaction-api",
-            }
-          }),
-        ]),
+        new transports.Console(),
+        ...(isTestEnv
+          ? []
+          : [
+              new LokiTransport({
+                host: 'http://loki:3100',
+                json: true,
+                labels: {
+                  app_name: 'bank-transaction-api',
+                },
+              }),
+            ]),
       ],
     });
   }

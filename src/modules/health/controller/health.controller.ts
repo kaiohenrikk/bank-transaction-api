@@ -5,9 +5,7 @@ import { LoggerService } from '../../../common/logger/service/logger.service';
 @ApiTags('Health')
 @Controller('health')
 export default class HealthController {
-  constructor(
-    private readonly logger: LoggerService
-  ) {}
+  constructor(private readonly logger: LoggerService) {}
   @Get()
   getHealth(): string {
     this.logger.info('Service is running');
