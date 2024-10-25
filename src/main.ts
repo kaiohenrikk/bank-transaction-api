@@ -25,7 +25,7 @@ const bootstrap = async () => {
 
   const document = SwaggerModule.createDocument(app, config);
 
-  const swaggerPath = join(process.cwd(), 'swagger.json');
+  const swaggerPath = join('/tmp', 'swagger.json');
   writeFileSync(swaggerPath, JSON.stringify(document, null, 2), 'utf-8');
 
   SwaggerModule.setup('api-docs', app, document);

@@ -36,8 +36,6 @@ services:
     depends_on:
       - loki  
       - db  
-    volumes:
-      - ./swagger.json:/usr/src/app/swagger.json 
     command: sh -c "until nc -z db 5432; do echo waiting for db; sleep 2; done; npm start"
     networks:
       - my-network 
@@ -48,8 +46,6 @@ services:
       - "8080:8080" 
     environment:
       - SWAGGER_JSON=/usr/share/swagger-ui/swagger.json
-    volumes:
-      - ./swagger.json:/usr/share/swagger-ui/swagger.json 
     networks:
       - my-network  
 
