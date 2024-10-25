@@ -13,7 +13,7 @@ export class AccountsController {
 
     @Post()
     async create(@Body() accountData: AccountDto): Promise<AccountDto> {
-        this.loggerService.info(`Iniciando processo de criação de conta... ${accountData}`);
+        this.loggerService.info(`Iniciando processo de criação de conta... ${accountData.numero}`);
 
         return this.accountsService.createAccount(accountData)
             .then((account) => {
