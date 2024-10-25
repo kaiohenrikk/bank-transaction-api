@@ -25,11 +25,11 @@ Os exemplos de concorrência utilizados para teste foram os disponíveis na tabe
    ```bash
    docker compose up -d
 
-   Após o processo finalizar, será possível:
+Após o processo finalizar, será possível:
 
-   - Acessar a API em: http://localhost:3000/bank-transaction-api
-   - Acessar a documentação no Swagger em: http://localhost:3000/api-docs
-   - Acessar o Grafana para ver os logs em: http://localhost:3001/login
+- Acessar a API em: http://localhost:3000/bank-transaction-api
+- Acessar a documentação no Swagger em: http://localhost:3000/api-docs
+- Acessar o Grafana para ver os logs em: http://localhost:3001/login
 
 ## Como visualizar os logs no Grafana
 
