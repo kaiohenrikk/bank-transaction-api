@@ -19,7 +19,7 @@ export class Transaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Account, { nullable: false })
+  @ManyToOne(() => Account, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'accountNumber', referencedColumnName: 'accountNumber' })
   account: Account;
 
