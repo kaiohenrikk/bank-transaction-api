@@ -16,7 +16,7 @@
 Os exemplos de concorrência utilizados para teste foram os disponíveis na tabela verdade em: [https://gist.github.com/gp-breno/71e3f5e0b85b97c79911037d8643e81e](https://gist.github.com/gp-breno/71e3f5e0b85b97c79911037d8643e81e)
 
 ## Instruções para rodar o projeto
-1. Clone o projeto com o comando:
+1. Clone o projeto com o comando abaixo, caso tenha configurado sua chave SSH:
    ```bash
    git clone git@github.com:kaiohenrikk/bank-transaction-api.git
 
