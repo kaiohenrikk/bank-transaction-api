@@ -6,15 +6,46 @@ import { AccountsService } from "../../../../src/modules/accounts/service/accoun
 import { Account } from "../../../../src/modules/accounts/entities/accounts.entity";
 import { Transaction } from "../../../../src/modules/transactions/entities/transaction.entity";
 import { TransactionType } from '../../../../src/modules/transactions/enums/transaction-type.enum';
+import { DataSource } from 'typeorm';
 
 describe('TransactionsService', () => {
     let service: TransactionsService;
+
+    const mockDataSource = {
+        transaction: jest.fn().mockImplementation(async (_mode, callback) => {
+            return await callback({
+                findOne: jest.fn().mockImplementation(async (_entity, options) => {
+                    if (options.where.accountNumber === 12345) {
+                        return {
+                            createdAt: new Date(),
+                            updatedAt: new Date(),
+                            accountNumber: 12345,
+                            balance: 5000,
+                            version: 1,
+                        }
+                    }
+
+                    return {
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        accountNumber: 54321,
+                        balance: 2000,
+                        version: 1,
+                    }
+
+                }),
+                save: jest.fn().mockImplementation(async (account) => account),
+            });
+        }),
+        createQueryBuilder: jest.fn(),
+    };
 
     const mockAccount: Account = {
         accountNumber: 12345,
         balance: 5000,
         createdAt: new Date(),
         updatedAt: new Date(),
+        version: 1
     };
 
     const mockTransaction: Transaction = {
@@ -47,6 +78,10 @@ describe('TransactionsService', () => {
                     provide: getRepositoryToken(Transaction),
                     useValue: mockRepository,
                 },
+                {
+                    provide: DataSource,
+                    useValue: mockDataSource,
+                }
             ],
         }).compile();
 
@@ -108,24 +143,26 @@ describe('TransactionsService', () => {
         });
 
         it('should transfer funds successfully between accounts', async () => {
-        
+
             const origemAccount: Account = {
                 ...mockAccount,
-                balance: 5000, 
+                balance: 5000,
             };
+
             const destinationAccount: Account = {
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 accountNumber: 54321,
                 balance: 2000,
+                version: 1
             };
 
             mockAccountsService.getAccount
-                .mockResolvedValueOnce(origemAccount)     
-                .mockResolvedValueOnce(destinationAccount); 
+                .mockResolvedValueOnce(origemAccount)
+                .mockResolvedValueOnce(destinationAccount);
 
             mockAccountsService.updateAccount
-                .mockResolvedValueOnce({ ...origemAccount, balance: 4000 }) 
+                .mockResolvedValueOnce({ ...origemAccount, balance: 4000 })
                 .mockResolvedValueOnce({ ...destinationAccount, balance: 3000 });
 
             const result = await service.createTransaction({
@@ -141,7 +178,6 @@ describe('TransactionsService', () => {
                 valor: 1000,
                 tipo: TransactionType.TRANSFER,
             });
-            expect(mockAccountsService.updateAccount).toHaveBeenCalledTimes(2);
         });
 
     });

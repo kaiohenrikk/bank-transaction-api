@@ -3,6 +3,7 @@ import { Account } from '../entities/accounts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AccountDto } from '../dto/account.dto';
+import { Retry } from '../../../decorators/retry.decorator';
 
 @Injectable()
 export class AccountsService {
@@ -41,6 +42,7 @@ export class AccountsService {
     return account;
   }
 
+  @Retry()
   async updateAccount(accountData: Partial<Account>): Promise<Account> {
     accountData.updatedAt = new Date();
     return await this.accountsRepository.save(accountData);

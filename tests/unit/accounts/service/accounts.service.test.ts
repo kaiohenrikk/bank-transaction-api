@@ -13,6 +13,7 @@ describe('AccountsService', () => {
         balance: 1000,
         createdAt: new Date(),
         updatedAt: new Date(),
+        version: 1
     };
 
     const mockResponse: AccountDto = {
